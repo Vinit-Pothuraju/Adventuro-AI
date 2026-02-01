@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
-import { AuthRequest } from "../middleware/auth.middleware"; // ✅ fixed path
+import { AuthRequest } from "../middleware/auth.middleware"; 
 import { createTrip, getUserTrips } from "../services/trip.service";
-
+import { Trip } from "../models/trip.model";
 export const createTripController = async (
   req: AuthRequest,
   res: Response,
@@ -26,4 +26,22 @@ export const getMyTripsController = async (
   } catch (error) {
     next(error);
   }
+};
+
+export const getTripByIdController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const { id } = req.params;
+
+  const trip = await Trip.findOne({
+    _id: id,
+    user: req.user!.userId
+  });
+
+  if (!trip) {
+    return res.status(404).json({ message: "Trip not found" });
+  }
+
+  res.json(trip);
 };
